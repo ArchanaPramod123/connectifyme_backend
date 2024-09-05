@@ -23,7 +23,6 @@ from django.core.asgi import get_asgi_application
 django_asgi_application = get_asgi_application()
 
 from Chat import routing as chatrouting
-# from post import routing as postrouting
 
 application = ProtocolTypeRouter(
     {

@@ -55,10 +55,11 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
+    
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
 
-    'corsheaders.middleware.CorsMiddleware',
 
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -70,11 +71,6 @@ MIDDLEWARE = [
 ROOT_URLCONF = 'backend.urls'
 
 
-# CORS_ALLOWED_ORIGINS = [
-#     "http://localhost:5173",  
-# ]
-CORS_ALLOW_ALL_ORIGINS = True
-
 CORS_ALLOW_METHODS = (
     "DELETE",
     "GET",
@@ -83,6 +79,19 @@ CORS_ALLOW_METHODS = (
     "POST",
     "PUT",
 )
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    "https://me.connectify.fun",
+    "https://www.me.connectify.fun",          
+]
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://me.connectify.fun",
+	"https://www.me.connectify.fun",
+	'http://localhost:3000'
+	
+]
 
 
 TEMPLATES = [
