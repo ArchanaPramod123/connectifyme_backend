@@ -23,6 +23,8 @@ from django.core.asgi import get_asgi_application
 django_asgi_application = get_asgi_application()
 
 from Chat import routing as chatrouting
+from post import routing as notification
+# from post import routing as postrouting
 
 application = ProtocolTypeRouter(
     {
@@ -30,7 +32,7 @@ application = ProtocolTypeRouter(
         'websocket':
         AllowedHostsOriginValidator(
             JWTAuthMiddlewareStack(
-                URLRouter(chatrouting.websocket_urlpatterns )
+                URLRouter(chatrouting.websocket_urlpatterns + notification.websocket_urlpatterns)
             )
         )
     }

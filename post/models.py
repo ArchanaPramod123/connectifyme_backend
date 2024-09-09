@@ -46,8 +46,8 @@ class Comment(models.Model):
         return self.created_at.strftime('%Y-%m-%d %H:%M:%S')
     
 class Follow(models.Model):
-    follower = models.ForeignKey(User,related_name='followers',on_delete=models.CASCADE)
-    following = models.ForeignKey(User,related_name='following',on_delete=models.CASCADE)
+    follower = models.ForeignKey(User,related_name='following',on_delete=models.CASCADE)
+    following = models.ForeignKey(User,related_name='followers',on_delete=models.CASCADE)
 
     def __str__(self) :
         return f'{self.follower} -> {self.following}'

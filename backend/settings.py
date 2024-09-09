@@ -69,6 +69,8 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'backend.urls'
+# CORS_ALLOW_ALL_ORIGINS = True  # Or specify allowed origins
+
 
 
 CORS_ALLOW_METHODS = (
@@ -81,7 +83,7 @@ CORS_ALLOW_METHODS = (
 )
 
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
+    "http://localhost:5173",
     "https://me.connectify.fun",
     "https://www.me.connectify.fun",          
 ]
@@ -89,8 +91,7 @@ CORS_ALLOWED_ORIGINS = [
 CSRF_TRUSTED_ORIGINS = [
     "https://me.connectify.fun",
 	"https://www.me.connectify.fun",
-	'http://localhost:3000'
-	
+	'http://localhost:5173'
 ]
 
 

@@ -13,8 +13,8 @@ class Message(models.Model):
     sender = models.ForeignKey(User,on_delete=models.CASCADE)
     text = models.TextField()
 
-    image = models.ImageField(upload_to='messages/images/', blank=True, null=True)
-    video = models.FileField(upload_to='messages/videos/', blank=True, null=True)
+    # image = models.ImageField(upload_to='messages/images/', blank=True, null=True)
+    # video = models.FileField(upload_to='messages/videos/', blank=True, null=True)
     
     created_at = models.DateTimeField(auto_now_add=True)
     seen = models.BooleanField(default=False)

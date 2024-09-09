@@ -408,9 +408,16 @@ class FollowUnfollowView(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
+        # follow_relationship, created = Follow.objects.get_or_create(
+        #     following=request.user, follower=target_user
+        # )
+
+
+
         follow_relationship, created = Follow.objects.get_or_create(
-            following=request.user, follower=target_user
+            follower=request.user, following=target_user
         )
+
 
         if not created:
             follow_relationship.delete()
@@ -579,3 +586,41 @@ class NotificationsSeenView(APIView):
             "GET method not allowed for the endpoint ",
             status=status.HTTP_405_METHOD_NOT_ALLOWED,
         )
+
+
+
+
+
+
+
+# View to get the list of followers of a user
+class FollowerListView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, user_id):
+        try:
+            user = User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        # Get the followers of the user
+        followers = Follow.objects.filter(following=user).select_related('follower')
+        followers_data = [UserSerializerProfile(f.follower, context={"request": request}).data for f in followers]
+
+        return Response({"followers": followers_data}, status=status.HTTP_200_OK)
+
+# View to get the list of users the current user is following
+class FollowingListView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, user_id):
+        try:
+            user = User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        # Get the users that the current user is following
+        following = Follow.objects.filter(follower=user).select_related('following')
+        following_data = [UserSerializerProfile(f.following, context={"request": request}).data for f in following]
+
+        return Response({"following": following_data}, status=status.HTTP_200_OK)

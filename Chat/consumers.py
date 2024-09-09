@@ -22,36 +22,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
         print("dissconnect withe the websoket")
         await self.channel_layer.group_discard(self.room_group_name,self.channel_name)
 
-    # async def receive(self, text_data):
-    #     print("receive with the websocket")
-    #     if 'user' not in self.scope:
-    #         print("User is not in scope")
-    #         return
-
-    #     text_data_json = json.loads(text_data)
-    #     message_type = text_data_json.get('type')
-
-    #     if message_type == 'video_call':
-    #         await self.handle_video_call(text_data_json)
-    #     else:
-    #         message = text_data_json['message']
-    #         user = self.scope['user']
-    #         user_serializer = UserSerializer(user)
-    #         email = user_serializer.data['email']
-
-    #         new_message = await self.create_message(self.room_id, message, email)
-
-    #         await self.channel_layer.group_send(
-    #             self.room_group_name,
-    #             {
-    #                 'type': 'chat_message',
-    #                 'message': message,
-    #                 'room_id': self.room_id,
-    #                 'sender_email': email,
-    #                 'created': timesince(new_message.created_at),
-    #             }
-    #         )
-
     async def receive(self, text_data):
         print("receive with the websocket")
         if 'user' not in self.scope:
@@ -64,106 +34,136 @@ class ChatConsumer(AsyncWebsocketConsumer):
         if message_type == 'video_call':
             await self.handle_video_call(text_data_json)
         else:
+            message = text_data_json['message']
             user = self.scope['user']
             user_serializer = UserSerializer(user)
             email = user_serializer.data['email']
-            
-            message_text = text_data_json.get('message', None)
-            image_data = text_data_json.get('image', None)
-            video_data = text_data_json.get('video', None)
-            
-            image_file = None
-            video_file = None
 
-            if image_data:
-                print("the data reciver image")
-                format, imgstr = image_data.split(';base64,') 
-                ext = format.split('/')[-1] 
-                image_file = ContentFile(base64.b64decode(imgstr), name=f'{user.username}_{self.room_id}.{ext}')
-            
-            if video_data:
-                print("the data is video recived")
-                format, vidstr = video_data.split(';base64,') 
-                ext = format.split('/')[-1]
-                video_file = ContentFile(base64.b64decode(vidstr), name=f'{user.username}_{self.room_id}.{ext}')
-            
-            new_message = await self.create_message(self.room_id, message_text, email, image_file, video_file)
+            new_message = await self.create_message(self.room_id, message, email)
 
             await self.channel_layer.group_send(
                 self.room_group_name,
                 {
                     'type': 'chat_message',
-                    'message': message_text,
-                    'image': new_message.image.url if new_message.image else None,
-                    'video': new_message.video.url if new_message.video else None,
+                    'message': message,
                     'room_id': self.room_id,
                     'sender_email': email,
                     'created': timesince(new_message.created_at),
                 }
             )
 
-    @sync_to_async
-    def create_message(self, room_id, message_text, email, image_file=None, video_file=None):
-        print("create chat message in the websocket")
-        user = User.objects.get(email=email)
-        room = Room.objects.get(id=room_id)
-        message = Message.objects.create(
-            text=message_text or '',
-            room=room,
-            sender=user,
-            image=image_file,
-            video=video_file
-        )
-        message.save()
-        return message
+    # async def receive(self, text_data):
+    #     print("receive with the websocket")
+    #     if 'user' not in self.scope:
+    #         print("User is not in scope")
+    #         return
+
+    #     text_data_json = json.loads(text_data)
+    #     message_type = text_data_json.get('type')
+
+    #     if message_type == 'video_call':
+    #         await self.handle_video_call(text_data_json)
+    #     else:
+    #         user = self.scope['user']
+    #         user_serializer = UserSerializer(user)
+    #         email = user_serializer.data['email']
+            
+    #         message_text = text_data_json.get('message', None)
+    #         image_data = text_data_json.get('image', None)
+    #         video_data = text_data_json.get('video', None)
+            
+    #         image_file = None
+    #         video_file = None
+
+    #         if image_data:
+    #             print("the data reciver image")
+    #             format, imgstr = image_data.split(';base64,') 
+    #             ext = format.split('/')[-1] 
+    #             image_file = ContentFile(base64.b64decode(imgstr), name=f'{user.username}_{self.room_id}.{ext}')
+            
+    #         if video_data:
+    #             print("the data is video recived")
+    #             format, vidstr = video_data.split(';base64,') 
+    #             ext = format.split('/')[-1]
+    #             video_file = ContentFile(base64.b64decode(vidstr), name=f'{user.username}_{self.room_id}.{ext}')
+            
+    #         new_message = await self.create_message(self.room_id, message_text, email, image_file, video_file)
+
+    #         await self.channel_layer.group_send(
+    #             self.room_group_name,
+    #             {
+    #                 'type': 'chat_message',
+    #                 'message': message_text,
+    #                 'image': new_message.image.url if new_message.image else None,
+    #                 'video': new_message.video.url if new_message.video else None,
+    #                 'room_id': self.room_id,
+    #                 'sender_email': email,
+    #                 'created': timesince(new_message.created_at),
+    #             }
+    #         )
+
+    # @sync_to_async
+    # def create_message(self, room_id, message_text, email, image_file=None, video_file=None):
+    #     print("create chat message in the websocket")
+    #     user = User.objects.get(email=email)
+    #     room = Room.objects.get(id=room_id)
+    #     message = Message.objects.create(
+    #         text=message_text or '',
+    #         room=room,
+    #         sender=user,
+    #         image=image_file,
+    #         video=video_file
+    #     )
+    #     message.save()
+    #     return message
     
-    async def chat_message(self, event):
-        print("Broadcasting chat message via WebSocket")
-        message = event['message']
-        image = event['image']
-        video = event['video']
-        room_id = event['room_id']
-        email = event['sender_email']
-        created = event['created']
-
-        await self.send(text_data=json.dumps({
-            'type': 'chat_message',
-            'message': message,
-            'image': image,
-            'video': video,
-            'room_id': room_id,
-            'sender_email': email,
-            'created': created,
-        }))
-    
-
-    
-
-
-
-    # async def chat_message(self,event):
-    #     print("chat_message withe the websoket")
+    # async def chat_message(self, event):
+    #     print("Broadcasting chat message via WebSocket")
     #     message = event['message']
+    #     image = event['image']
+    #     video = event['video']
     #     room_id = event['room_id']
     #     email = event['sender_email']
     #     created = event['created']
 
     #     await self.send(text_data=json.dumps({
-    #         'type':'chat_message',
-    #         'message':message,
-    #         'room_id':room_id,
-    #         'sender_email':email,
-    #         'created':created,
+    #         'type': 'chat_message',
+    #         'message': message,
+    #         'image': image,
+    #         'video': video,
+    #         'room_id': room_id,
+    #         'sender_email': email,
+    #         'created': created,
     #     }))
     
-    # @sync_to_async
-    # def create_message(self,room_id,message,email):
-    #     print("create chat messag ein the websocket")
-    #     user = User.objects.get(email=email)
-    #     room = Room.objects.get(id=room_id)
-    #     message = Message.objects.create(text=message,room=room,sender=user)
-    #     message.save()
-    #     return message
+
+    
+
+
+
+    async def chat_message(self,event):
+        print("chat_message withe the websoket")
+        message = event['message']
+        room_id = event['room_id']
+        email = event['sender_email']
+        created = event['created']
+
+        await self.send(text_data=json.dumps({
+            'type':'chat_message',
+            'message':message,
+            'room_id':room_id,
+            'sender_email':email,
+            'created':created,
+        }))
+    
+    @sync_to_async
+    def create_message(self,room_id,message,email):
+        print("create chat messag ein the websocket")
+        user = User.objects.get(email=email)
+        room = Room.objects.get(id=room_id)
+        message = Message.objects.create(text=message,room=room,sender=user)
+        message.save()
+        return message
 
 
    

@@ -31,6 +31,7 @@ class JwtAuthMiddleware(BaseMiddleware):
         close_old_connections()
 
         token = parse_qs(scope['query_string'].decode('utf8'))['token'][0]
+        print(f"Token received: {token}")
 
         try:
             UntypedToken(token)
@@ -38,6 +39,7 @@ class JwtAuthMiddleware(BaseMiddleware):
             return None
         else:
             decoded_data = jwt_decode(token,settings.SECRET_KEY,algorithms=['HS256'])
+            print(f"Decoded token data: {decoded_data}")
             scope['user'] = await get_user(validated_token=decoded_data)
         return await super().__call__(scope,receive,send)
 
