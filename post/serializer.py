@@ -132,6 +132,7 @@ class UserSerializerProfile(serializers.ModelSerializer):
             "following_count",
             "total_posts",
             "is_following",
+            "is_private"
         ]
 
 class ReportSerializer(serializers.ModelSerializer):

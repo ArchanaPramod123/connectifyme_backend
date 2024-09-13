@@ -161,22 +161,26 @@ class EditProfileView(APIView):
             )
 
         serializer = UserSerializer(user, data=request.data, partial=True)
+
+
+        if 'is_private' in request.data:
+            user.is_private = request.data['is_private'] == 'true'  # Convert string to boolean
+
+
         if serializer.is_valid():
             if "profile_picture" in request.FILES:
                 serializer.validated_data["profile_picture"] = request.FILES[
                     "profile_picture"
                 ]
+            
             serializer.save()
+            user.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
 
         print("Serializer Errors: ", serializer.errors)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
 # --------------------------------------------------Post Like -----------------------------------------------------------------------------------------------------------
-
-
 class PostLikeView(APIView):
     permission_classes = [IsAuthenticated]
 
